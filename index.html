@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html>
 <head>
   <title>Automation Dashboard</title>
@@ -43,10 +43,17 @@
       border-radius: 10px;
       font-size: 15px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     button:disabled {
       background: #374151;
+      cursor: not-allowed;
+    }
+
+    .download-btn {
+      background: #22c55e;
+      display: none;
     }
 
     .status {
@@ -86,6 +93,11 @@
 
   <button id="btn" onclick="run()">Run Workflow</button>
 
+  <!-- Download button -->
+  <button id="downloadBtn" class="download-btn" onclick="downloadSheet()">
+    📥 Download Google Sheet
+  </button>
+
   <div class="status" id="status">Idle</div>
 
   <div class="logs" id="logs"></div>
@@ -94,8 +106,11 @@
 
 <script>
 
-/* ✅ YOUR WEBHOOK */
+/* 🔗 Your n8n webhook */
 const WEBHOOK_URL = "https://vivien-battlemented-loree.ngrok-free.dev/webhook/87bd567e-11a3-4ab7-9d16-1c5c6b75200e";
+
+/* 📥 Google Sheet CSV export link */
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/16FTYRiC8lp3wBl-XJTtNyBKZYYSEnAWq9GJ21fgiiX8/export?format=csv";
 
 function getLogs() {
   return JSON.parse(localStorage.getItem("logs") || "[]");
@@ -120,8 +135,10 @@ function render() {
 async function run() {
   const btn = document.getElementById("btn");
   const status = document.getElementById("status");
+  const downloadBtn = document.getElementById("downloadBtn");
 
   btn.disabled = true;
+  downloadBtn.style.display = "none"; 
   status.innerText = "⏳ Running...";
 
   const logs = getLogs();
@@ -137,13 +154,14 @@ async function run() {
   render();
 
   try {
-    await fetch(WEBHOOK_URL, {
-      method: "POST"
-    });
+    await fetch(WEBHOOK_URL, { method: "POST" });
 
     log.status = "success";
     log.message = "Workflow completed ✔";
     status.innerText = "✅ Success";
+
+    /* show download button */
+    downloadBtn.style.display = "block";
 
   } catch (e) {
     log.status = "error";
@@ -155,6 +173,16 @@ async function run() {
   render();
 
   btn.disabled = false;
+}
+
+/* Download sheet */
+function downloadSheet() {
+  const link = document.createElement("a");
+  link.href = SHEET_URL;
+  link.download = "automation-data.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 render();
