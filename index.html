@@ -151,13 +151,14 @@ async function run() {
   render();
 
   try {
-    await fetch(WEBHOOK_URL, {
-      method: "POST"
-    });
+    await fetch(WEBHOOK_URL, { method: "POST" });
 
     log.status = "success";
     log.message = "Workflow completed ✔";
     status.innerText = "✅ Success";
+
+    /* show download button */
+    downloadBtn.style.display = "block";
 
   } catch (e) {
     log.status = "error";
