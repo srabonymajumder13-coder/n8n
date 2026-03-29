@@ -85,6 +85,11 @@
   <p>Trigger your n8n workflow instantly</p>
 
   <button id="btn" onclick="run()">Run Workflow</button>
+  <h1></h1>
+  <!-- Download button -->
+  <button id="downloadBtn" class="download-btn" onclick="downloadSheet()">
+    📥 Download Google Sheet
+  </button>
 
   <div class="status" id="status">Idle</div>
 
@@ -147,6 +152,8 @@ async function run() {
     log.status = "success";
     log.message = "Workflow completed ✔";
     status.innerText = "✅ Success";
+    /* show download button */
+    downloadBtn.style.display = "block";
 
 
   } catch (e) {
