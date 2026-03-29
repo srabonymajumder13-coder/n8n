@@ -81,7 +81,7 @@
 
 <div class="box">
 
-  <h2>🚀 Automation Dashboard</h2>
+  <h2>🚀 Amzon Product Automation Dashboard</h2>
   <p>Trigger your n8n workflow instantly</p>
 
   <button id="btn" onclick="run()">Run Workflow</button>
@@ -134,8 +134,10 @@ function render() {
 async function run() {
   const btn = document.getElementById("btn");
   const status = document.getElementById("status");
+  const downloadBtn = document.getElementById("downloadBtn");
 
   btn.disabled = true;
+  downloadBtn.style.display = "none"; 
   status.innerText = "⏳ Running...";
 
   const logs = getLogs();
@@ -171,7 +173,6 @@ async function run() {
 
   btn.disabled = false;
 }
-}
 
 /* Download sheet */
 function downloadSheet() {
@@ -182,6 +183,7 @@ function downloadSheet() {
   link.click();
   document.body.removeChild(link);
 }
+
 render();
 
 </script>
