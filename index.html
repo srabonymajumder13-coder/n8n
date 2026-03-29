@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Automation Dashboard</title>
+  <title>Amzon Product Automation Dashboard</title>
 
   <style>
     body {
@@ -108,7 +108,8 @@
 
 /* ✅ YOUR WEBHOOK */
 const WEBHOOK_URL = "http://localhost:5678/webhook/87bd567e-11a3-4ab7-9d16-1c5c6b75200e";
-
+/* 📥 Google Sheet CSV export link */
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/16FTYRiC8lp3wBl-XJTtNyBKZYYSEnAWq9GJ21fgiiX8/export?format=csv";
 
 function getLogs() {
   return JSON.parse(localStorage.getItem("logs") || "[]");
@@ -169,7 +170,17 @@ async function run() {
 
   btn.disabled = false;
 }
+}
 
+/* Download sheet */
+function downloadSheet() {
+  const link = document.createElement("a");
+  link.href = SHEET_URL;
+  link.download = "automation-data.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 render();
 
 </script>
