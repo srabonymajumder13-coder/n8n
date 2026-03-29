@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Automation Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0b1220;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .box {
+      width: 420px;
+      background: #111827;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #9ca3af;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #374151;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #d1d5db;
+    }
+
+    .logs {
+      margin-top: 15px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .log {
+      background: #0f172a;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border-left: 4px solid #22c55e;
+    }
+
+    .error {
+      border-left: 4px solid #ef4444;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>🚀 Automation Dashboard</h2>
+  <p>Trigger your n8n workflow instantly</p>
+
+  <button id="btn" onclick="run()">Run Workflow</button>
+
+  <div class="status" id="status">Idle</div>
+
+  <div class="logs" id="logs"></div>
+
+</div>
+
+<script>
+
+/* ✅ YOUR WEBHOOK */
+const WEBHOOK_URL = "http://localhost:5678/webhook/87bd567e-11a3-4ab7-9d16-1c5c6b75200e";
+
+function getLogs() {
+  return JSON.parse(localStorage.getItem("logs") || "[]");
+}
+
+function saveLogs(logs) {
+  localStorage.setItem("logs", JSON.stringify(logs));
+}
+
+function render() {
+  const logs = getLogs();
+  const box = document.getElementById("logs");
+
+  box.innerHTML = logs.slice().reverse().map(l => `
+    <div class="log ${l.status === 'error' ? 'error' : ''}">
+      <b>${l.time}</b><br>
+      ${l.message}
+    </div>
+  `).join("");
+}
+
+async function run() {
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+
+  btn.disabled = true;
+  status.innerText = "⏳ Running...";
+
+  const logs = getLogs();
+
+  const log = {
+    time: new Date().toLocaleString(),
+    status: "running",
+    message: "Workflow triggered"
+  };
+
+  logs.push(log);
+  saveLogs(logs);
+  render();
+
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: "POST"
+    });
+
+    log.status = "success";
+    log.message = "Workflow completed ✔";
+    status.innerText = "✅ Success";
+
+  } catch (e) {
+    log.status = "error";
+    log.message = "Workflow failed ❌";
+    status.innerText = "❌ Failed";
+  }
+
+  saveLogs(logs);
+  render();
+
+  btn.disabled = false;
+}
+
+render();
+
+</script>
+
+</body>
+</html>
