@@ -10,7 +10,7 @@ echo ⏳ Waiting for n8n to boot...
 timeout /t 12 >nul
 
 echo 🌐 Opening Dashboard...
-start "" "https://github.com/srabonymajumder13-coder/n8n/"
+start "" "D:\OneDrive - Expo Group, Bangladesh\Desktop\Automation Dashboard.lnk"
 
 echo ✅ System Ready!
 
