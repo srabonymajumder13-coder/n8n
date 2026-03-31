@@ -5,10 +5,10 @@ echo 🔄 Starting n8n...
 start "" cmd /k n8n start
 
 echo ⏳ Waiting for n8n to boot...
-timeout /t 6 >nul
+timeout /t 10 >nul
 
 echo 🌐 Opening Dashboard...
-start "" "https://github.com/srabonymajumder13-coder/n8n/"
+start "" "D:\OneDrive - Expo Group, Bangladesh\Desktop\Automation Dashboard.lnk"
 
 echo ✅ System Ready!
 pause
