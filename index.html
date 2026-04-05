@@ -188,10 +188,8 @@
 
 <body>
 
-<!-- MENU -->
 <div class="menu-btn" onclick="toggleSidebar()">☰</div>
 
-<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 
   <div class="section-title-sb">Categories</div>
@@ -215,7 +213,6 @@
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<!-- MAIN UI -->
 <div class="box">
 
   <div class="header">
@@ -249,7 +246,6 @@
 const WEBHOOK_URL = "http://localhost:5678/webhook/87bd567e-11a3-4ab7-9d16-1c5c6b75200e";
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/16FTYRiC8lp3wBl-XJTtNyBKZYYSEnAWq9GJ21fgiiX8/export?format=csv";
 
-/* SIDEBAR */
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("open");
   document.getElementById("overlay").classList.toggle("show");
@@ -266,7 +262,6 @@ function saveLogs(logs){
 
 function updateStats(){
   const logs = getLogs();
-
   document.getElementById("totalRuns").innerText = logs.length;
   document.getElementById("successRuns").innerText =
     logs.filter(l => l.status === "success").length;
@@ -290,8 +285,13 @@ function renderLogs(){
 
 /* GET SELECTED */
 function getSelected(){
-  return [...document.querySelectorAll(".sidebar input[type='checkbox']:checked")]
+  const categories = [...document.querySelectorAll(".sidebar .checklist:nth-of-type(1) input:checked")]
     .map(el => el.value);
+
+  const brands = [...document.querySelectorAll(".sidebar .checklist:nth-of-type(2) input:checked")]
+    .map(el => el.value);
+
+  return { categories, brands };
 }
 
 /* RUN */
@@ -303,6 +303,12 @@ async function run(){
   const downloadBtn = document.getElementById("downloadBtn");
 
   const selected = getSelected();
+
+  // ✅ ADDED CONDITION (NO LAYOUT CHANGE)
+  if (selected.categories.length === 0 && selected.brands.length === 0) {
+    alert("⚠ Please select at least one Category or Brand before running.");
+    return;
+  }
 
   btn.disabled = true;
   status.innerText = "⏳ Running...";
@@ -325,7 +331,10 @@ async function run(){
     await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ selected })
+      body: JSON.stringify({
+        categories: selected.categories,
+        brands: selected.brands
+      })
     });
 
     logs = getLogs();
@@ -364,7 +373,6 @@ async function run(){
   setTimeout(() => progress.style.width = "0%", 1500);
 }
 
-/* OTHER */
 function clearLogs(){
   localStorage.removeItem("logs");
   renderLogs();
@@ -374,7 +382,6 @@ function downloadSheet(){
   window.open(SHEET_URL, "_blank");
 }
 
-/* INIT */
 renderLogs();
 
 </script>
