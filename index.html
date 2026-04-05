@@ -307,7 +307,11 @@ async function run(){
 function clearLogs(){
   document.getElementById("logs").innerHTML="";
 }
-
+/* OTHER */
+function clearLogs(){
+  localStorage.removeItem("logs");
+  renderLogs();
+  
 function downloadSheet(){
   window.open(SHEET_URL,"_blank");
 }
