@@ -22,10 +22,7 @@
       border: 1px solid rgba(255,255,255,0.06);
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    .header { text-align: center; margin-bottom: 20px; }
 
     h2 {
       font-size: 28px;
@@ -53,6 +50,21 @@
 
     .card h3 { font-size: 18px; }
     .card span { font-size: 12px; color: #9ca3af; }
+
+    .inputs { margin-top: 20px; }
+
+    .section-label {
+      margin-top: 15px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    .checkbox-group label {
+      display: block;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
 
     .btn-group {
       display: flex; justify-content: center; gap: 15px; margin: 20px 0;
@@ -125,7 +137,6 @@
     }
 
     .error { border-left: 4px solid #ef4444; }
-
   </style>
 </head>
 
@@ -144,6 +155,28 @@
     <div class="card"><h3 id="failRuns">0</h3><span>Failed</span></div>
   </div>
 
+  <!-- INPUTS -->
+  <div class="inputs">
+
+    <div class="section-label">Select Categories</div>
+    <div class="checkbox-group" id="categories">
+      <label><input type="checkbox" value="Beauty/Health & Personal Care"> Beauty / Health & Personal Care</label>
+      <label><input type="checkbox" value="Pet Products"> Pet Products</label>
+      <label><input type="checkbox" value="Kitchen"> Kitchen</label>
+      <label><input type="checkbox" value="Home Improvement"> Home Improvement</label>
+      <label><input type="checkbox" value="Baby Products"> Baby Products</label>
+    </div>
+
+    <div class="section-label">Select Brands</div>
+    <div class="checkbox-group" id="brands">
+      <label><input type="checkbox" value="CeraVe"> CeraVe</label>
+      <label><input type="checkbox" value="Cetaphil"> Cetaphil</label>
+      <label><input type="checkbox" value="Neutrogena"> Neutrogena</label>
+      <label><input type="checkbox" value="The Ordinary"> The Ordinary</label>
+    </div>
+
+  </div>
+
   <div class="btn-group">
     <button id="btn" onclick="run()">▶ Run</button>
     <button id="downloadBtn" onclick="downloadSheet()">📥 CSV</button>
@@ -151,11 +184,9 @@
   </div>
 
   <div class="status" id="status">Idle</div>
-
   <div class="progress"><div class="progress-bar" id="progress"></div></div>
 
   <div class="section-title">📜 Run History</div>
-
   <div class="logs" id="logs"></div>
 
 </div>
@@ -194,12 +225,24 @@ async function run(){
   const progress = document.getElementById("progress");
   const downloadBtn = document.getElementById("downloadBtn");
 
+  const categories = Array.from(document.querySelectorAll('#categories input:checked')).map(cb => cb.value);
+  const brands = Array.from(document.querySelectorAll('#brands input:checked')).map(cb => cb.value);
+
+  if(categories.length === 0 || brands.length === 0){
+    status.innerText = "⚠ Select categories & brands";
+    return;
+  }
+
   btn.disabled = true;
   status.innerText = "⏳ Running...";
   progress.style.width = "30%";
 
   const logs = getLogs();
-  const log = { time:new Date().toLocaleString(), status:"running", message:"Workflow triggered" };
+  const log = {
+    time:new Date().toLocaleString(),
+    status:"running",
+    message:`Running for ${categories.join(", ")} | ${brands.join(", ")}`
+  };
 
   logs.push(log);
   saveLogs(logs);
@@ -207,19 +250,23 @@ async function run(){
 
   try{
     progress.style.width = "70%";
-    await fetch(WEBHOOK_URL,{method:"POST"});
+
+    await fetch(WEBHOOK_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ categories, brands })
+    });
 
     log.status="success";
-    log.message="Workflow completed ✔";
+    log.message="Completed ✔";
     status.innerText="✅ Success";
-    progress.style.width = "100%";
+    progress.style.width="100%";
     downloadBtn.style.display="inline-block";
 
   }catch(e){
     log.status="error";
-    log.message="Workflow failed ❌";
+    log.message="Failed ❌";
     status.innerText="❌ Failed";
-    progress.style.width = "100%";
   }
 
   saveLogs(logs);
